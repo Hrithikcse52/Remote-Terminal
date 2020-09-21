@@ -1,51 +1,51 @@
-const Pty = require('node-pty');
+const Pty = require("node-pty");
 
-exports.install = function() {
+exports.install = function () {
+  // Route to views/index
+  ROUTE("/");
 
-	// Route to views/index
-	ROUTE('/');
-
-	// WebSocket route
-	WEBSOCKET('/', socket, ['raw']);
-
+  // WebSocket route
+  WEBSOCKET("/", socket, ["raw"]);
 };
 
 function socket() {
+  var self = this;
 
-	var self = this;
+  self.encodedecode = false;
+  self.autodestroy();
 
-	self.encodedecode = false;
-	self.autodestroy();
+  self.on("open", function (client) {
+    // Each client will have own terminal
+    client.tty = Pty.spawn("bash", [], {
+      name: "xterm-color",
+      cols: 80,
+      rows: 24,
+      cwd: process.env.PWD,
+      env: process.env,
+    });
 
-	self.on('open', function(client) {
+    client.tty.on("exit", function (code, signal) {
+      // What now?
+      client.tty = null;
+      client.close();
+    });
 
-		// Each client will have own terminal
-		client.tty = Pty.spawn('bash', [], { name: 'xterm-color', cols: 80, rows: 24, cwd: process.env.PWD, env: process.env });
+    client.tty.on("data", function (data) {
+      // If you have a problem just uncomment the code below:
+      console.log(data);
 
-		client.tty.on('exit', function(code, signal) {
-			// What now?
-			client.tty = null;
-			client.close();
-		});
+      client.send(data);
+    });
+  });
 
-		client.tty.on('data', function(data) {
+  self.on("close", function (client) {
+    if (client.tty) {
+      client.tty.kill(9);
+      client.tty = null;
+    }
+  });
 
-			// If you have a problem just uncomment the code below:
-			// console.log(data);
-
-			client.send(data);
-		});
-
-	});
-
-	self.on('close', function(client) {
-		if (client.tty) {
-			client.tty.kill(9);
-			client.tty = null;
-		}
-	});
-
-	self.on('message', function(client, msg) {
-		client.tty && client.tty.write(msg);
-	});
+  self.on("message", function (client, msg) {
+    client.tty && client.tty.write(msg);
+  });
 }
