@@ -1,0 +1,25 @@
+{
+  "pid": 9840,
+  "stats": [
+    {
+      "id": null,
+      "version": {
+        "node": "v14.11.0",
+        "total": "3.4.5",
+        "app": "1.0.0"
+      },
+      "pid": 9840,
+      "thread": "",
+      "mode": "debug",
+      "date": "2020-09-21T10:30:22.049Z",
+      "memory": 7.51,
+      "rm": 2,
+      "fm": 1,
+      "usage": 0,
+      "requests": 2,
+      "pending": 0,
+      "errors": 0,
+      "timeouts": 0
+    }
+  ]
+}
